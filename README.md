@@ -16,4 +16,4 @@ A repository containing my solutions to the [Imperial College January Haskell Te
 12. Hash Array Mapped Tries (2020)
 13. Graph Colouring and Register Allocation (2021)
 14. Supercombinators (2022)
-15. Cryptic Clue Solving (2023)
+15. Cryptic Clue Solving (2023) \[Difficulty: *\] ✅
