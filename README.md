@@ -14,6 +14,6 @@ A repository containing my solutions to the [Imperial College January Haskell Te
 10. Constant Propagation (2018)
 11. SAT Solving (2019) \[Difficulty: *\] ✅
 12. Hash Array Mapped Tries (2020)
-13. Graph Colouring and Register Allocation (2021)
-14. Supercombinators (2022)
+13. Graph Colouring and Register Allocation (2021) \[Difficulty: **\] ✅
+14. Supercombinators (2022) \[Difficulty: ***\] ✅
 15. Cryptic Clue Solving (2023) \[Difficulty: *\] ✅
