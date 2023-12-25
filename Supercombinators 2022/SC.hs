@@ -72,7 +72,8 @@ buildFVMap (Let bs e)   = buildFVMap e
     fFreeVars  = second freeVars <$> fDefs
     -- Before removing the function references from the freeVars output, 
     -- we use the function reference to union the free variables
-    iter ffvs  = second sort <$> map (second expand) ffvs 
+    -- use iterate because function might have nested references
+    iter ffvs  = second sort <$> iterate (map (second expand)) ffvs !! fDefCount
     expand fvs = unionAll (fvs : map (fromMaybe [] . (`lookup` fFreeVars)) fvs)
 buildFVMap (App e1 es) = unionAll $ map buildFVMap (e1 : es)
 buildFVMap (Fun _ e)    = buildFVMap e
