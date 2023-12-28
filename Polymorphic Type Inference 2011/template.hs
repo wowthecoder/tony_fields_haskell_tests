@@ -125,7 +125,7 @@ unifyPairs ((t1, TVar v):ts) sb
   | not (occurs v t1) = unifyPairs subbed ((v, t1):sb)
   | otherwise         = Nothing
   where
-    subbed = map (\(x, y) -> (applySub [(v, t1)] x, applySub [(v, t1)] x)) ts
+    subbed = map (bimap (applySub [(v, t1)]) (applySub [(v, t1)])) ts
 unifyPairs _ _ = Nothing
 
 ------------------------------------------------------
