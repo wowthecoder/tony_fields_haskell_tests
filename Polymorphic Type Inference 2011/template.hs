@@ -74,7 +74,7 @@ inferType :: Expr -> TEnv -> Type
 inferType (Number _) _ = TInt
 inferType (Boolean _) _ = TBool
 inferType (Id s) env = lookUp s env
-inferType (Prim op) env = lookUp op primTypes
+inferType (Prim op) _ = lookUp op primTypes
 inferType (Cond c p q) env
   | cType == TBool && pType == qType = pType
   | otherwise                        = TErr
@@ -148,8 +148,8 @@ combineSubs
   = foldr1 combine
 
 inferPolyType :: Expr -> Type
-inferPolyType
-  = undefined
+inferPolyType e = let (_, t, _) = inferPolyType' e [] 1 in t
+  
 
 -- You may optionally wish to use one of the following helper function declarations
 -- as suggested in the specification. 
@@ -158,9 +158,29 @@ inferPolyType
 -- inferPolyType'
 --   = undefined
 
--- inferPolyType' :: Expr -> TEnv -> Int -> (Sub, Type, Int)
--- inferPolyType' 
---   = undefined
+inferPolyType' :: Expr -> TEnv -> Int -> (Sub, Type, Int)
+inferPolyType' (Number _) _ i = ([], TInt, i)
+inferPolyType' (Boolean _) _ i = ([], TBool, i)
+inferPolyType' (Prim op) _ i = ([], lookUp op primTypes, i)
+inferPolyType' (Id s) env i = ([], lookUp s env, i)
+
+inferPolyType' (Fun x e) env i 
+  | te == TErr = (sb, TErr, j)
+  | otherwise  = (sb, TFun (applySub sb newVar) te, j)
+  where 
+    newVar = TVar ('a' : show i)
+    (sb, te, j) = inferPolyType' e ((x, newVar):env) (i+1)
+
+inferPolyType' (App f e) env i
+  | isNothing uniSub = ([], TErr, k)
+  | otherwise = (subs, resType, k)
+  where 
+    (sb1, tf, j) = inferPolyType' f env (i+1) 
+    (sb2, te, k) = inferPolyType' e (updateTEnv env sb1) (j+1)
+    newVar = TVar ('a' : show i)
+    uniSub = unify tf (TFun te newVar)
+    resType = applySub (fromJust uniSub) newVar 
+    subs = combineSubs [fromJust uniSub, sb2, sb1]
 
 ------------------------------------------------------
 -- Monomorphic type inference test cases from Table 1...
