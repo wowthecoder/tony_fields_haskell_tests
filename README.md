@@ -4,7 +4,7 @@ A repository containing my solutions to the [Imperial College January Haskell Te
 ## Progress Checklist
 1. Binary Decision Diagrams (2009)
 2. Suffix Trees (2010)
-3. Polymorphic Type Inference (2011)
+3. Polymorphic Type Inference (2011) \[Difficulty: ***\] ✅
 4. Labelled Transition Systems (2012)
 5. Binomial Heaps (2013)
 6. Regular Expressions and Finite Automata (2014)
