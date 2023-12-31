@@ -2,7 +2,7 @@ module Exam where
 
 import Data.Char
 import Data.Maybe
-  
+
 type Name = String
 
 type Attributes = [(Name, String)]
@@ -32,7 +32,7 @@ showXMLs
 
 -- Prints an XML object to the terminal
 printXML :: XML -> IO()
-printXML 
+printXML
   = putStrLn . showXML
 
 -- Prints a list of XML objects to the terminal (useful for testing the
@@ -47,7 +47,7 @@ printXMLs
 
 skipSpace :: String -> String
 skipSpace
- = snd . break (not . isSpace) 
+ = snd . break (not . isSpace)
 
 getAttribute :: String -> XML -> String
 getAttribute name (Element _ attrs _)
@@ -56,19 +56,19 @@ getAttribute _ _
  = ""
 
 getChildren :: String -> XML -> [XML]
-getChildren cname (Element _ _ childs) 
+getChildren cname (Element _ _ childs)
   = filter ((==cname) . getName) childs
-  where 
-    getName (Element name _ _) = name 
-    getName _ = "" 
-getChildren _ _ 
+  where
+    getName (Element name _ _) = name
+    getName _ = ""
+getChildren _ _
   = []
 
 getChild :: String -> XML -> XML
 getChild cname ele
   | null childs = Text ""
-  | otherwise   = head childs 
-  where 
+  | otherwise   = head childs
+  where
     childs = getChildren cname ele
 
 addChild :: XML -> XML -> XML
@@ -78,9 +78,9 @@ addChild c (Element name attrs cs)
 
 getValue :: XML -> XML
 getValue ele = Text (getVal ele)
-  where 
+  where
     getVal Null = ""
-    getVal (Text s) = s 
+    getVal (Text s) = s
     getVal (Element _ _ childs) = concatMap getVal childs
 
 -------------------------------------------------------------------------
@@ -98,12 +98,12 @@ parseName s@(c : cs)
     isNameChar c = isAlpha c || isDigit c || elem c "-."
 
 sentinel :: XML
-sentinel 
+sentinel
   = Element "" [] []
 
 addText :: String -> Stack -> Stack
 -- Pre: There is at least one Element on the stack
-addText val ((Element name attrs childs):stk) 
+addText val ((Element name attrs childs):stk)
   = Element name attrs (childs ++ [Text val]) : stk
 
 popAndAdd :: Stack -> Stack
@@ -113,10 +113,10 @@ popAndAdd (el:(Element name attrs childs):stk)
 
 parseAttributes :: String -> (Attributes, String)
 -- Pre: The XML attributes string is well-formed
-parseAttributes input 
+parseAttributes input
   | c == '>' = ([], cs)
   | otherwise = ((attName, attVal):atts, rest'')
-  where 
+  where
     s@(c:cs) = skipSpace input
     (attName, rest) = parseName s
     -- 3c (the 2 tails exclude the = and ")
@@ -132,22 +132,22 @@ parse s
 
 parse' :: String -> Stack -> XML
 parse' "" ((Element _ _ (child:childs)):stk)
-  = child 
+  = child
 
 parse' ('<':'/':cs) stk
   = parse' (tail rest) (popAndAdd stk)
-  where 
+  where
     (tag, rest) = break (=='>') cs
 
-parse' ('<':cs) stk 
+parse' ('<':cs) stk
   = parse' rest' (Element elemName atts [] : stk)
   where
-    (elemName, rest) = parseName cs 
+    (elemName, rest) = parseName cs
     (atts, rest') = parseAttributes rest
 
-parse' s stk 
+parse' s stk
   = parse' rest (addText text stk)
-  where 
+  where
     (text, rest) = break (=='<') s
 
 -------------------------------------------------------------------------
@@ -168,14 +168,40 @@ output file xsl source
   = writeFile file (showXMLs (expandXSL xsl source))
 
 expandXSL :: XSL -> XML -> [XML]
-expandXSL xsl source 
+expandXSL xsl source
   = expandXSL' root xsl
   where
-    root = Element "/" [] [source] 
+    root = Element "/" [] [source]
 
 expandXSL' :: Context -> XSL -> [XML]
-expandXSL' 
-  = undefined
+expandXSL' root@(Element {}) (Element "value-of" [("select", path)] _)
+  | e:es <- locate path root = [getValue e]
+  | otherwise                = [Text ""]
+
+-- find all the elements in context with locate
+-- then map over the items(actions) in the for-each loop
+expandXSL' root@(Element {}) (Element "for-each" [("select", path)] children) 
+  = concat [expandXSL' xml child 
+    | xml <- locate path root, child <- children]
+
+expandXSL' root (Element name attrs childs) 
+  = [Element name attrs (concatMap (expandXSL' root) childs)]
+
+expandXSL' _ ele = [ele] -- for Text elements
+
+-- helper function (returns the list of elements in context listed by the path)
+locate :: String -> Context -> [XML]
+locate path root
+  | '@' : attName <- path   = [Text (getAttribute attName root)] -- attribute only appear at the end of path
+  | top == "." && null rest = [root] -- dot at the end
+  | top == "."              = locate (tail rest) root -- for ./
+  | null children           = [] -- path do not exist
+  | null rest               = children 
+  | otherwise               = concatMap (locate (tail rest)) children 
+  where
+    -- recurse with tail rest to remove the starting / in rest
+    (top, rest) = break (=='/') path 
+    children = getChildren top root
 
 -------------------------------------------------------------------------
 -- Test data for Parts I and II
@@ -184,7 +210,7 @@ expandXSL'
 s1, s2, s3 :: String
 s1
   = "<a>A</a>"
-s2 
+s2
   = "<a x=\"1\"><b>A</b><b>B</b></a>"
 s3
   = "<a>\
@@ -208,34 +234,34 @@ x2
             [Element "b" [] [Text "A"],
              Element "b" [] [Text "B"]]
 x3
-  = Element "a" 
-            [] 
-            [Element "b" 
-                     [] 
+  = Element "a"
+            []
+            [Element "b"
+                     []
                      [Element "c"
-                              [("att","att1")] 
+                              [("att","att1")]
                               [Text "text1"],
-                      Element "c" 
+                      Element "c"
                               [("att","att2")]
                               [Text "text2"]],
-             Element "b" 
-                     [] 
-                     [Element "c" 
-                              [("att","att3")] 
+             Element "b"
+                     []
+                     [Element "c"
+                              [("att","att3")]
                               [Text "text3"],
-                      Element "d" 
-                              [] 
+                      Element "d"
+                              []
                               [Text "text4"]]]
 
-casablanca :: String 
+casablanca :: String
 casablanca
   = "<film title=\"Casablanca\">\n  <director>Michael Curtiz</director>\n  <year>1942\
     \</year>\n</film>\n\n\n"
 
-casablancaParsed :: XML 
+casablancaParsed :: XML
 casablancaParsed
-  = Element "film" 
-            [("title","Casablanca")] 
+  = Element "film"
+            [("title","Casablanca")]
             [Text "\n  ",
              Element "director" [] [Text "Michael Curtiz"],
              Text "\n  ",
@@ -268,8 +294,8 @@ films
 -- Parsed version of films ('parse films'), suitably formatted
 filmsParsed :: XML
 filmsParsed
-  = Element "filmlist" 
-            [] 
+  = Element "filmlist"
+            []
             [Text "\n  ",
              Element "film" [("title","Rear Window")]
                             [Text "\n    ",
@@ -280,7 +306,7 @@ filmsParsed
                              Element "year" [] [Text "1954"],
                              Text "\n  "],
              Text "\n  ",
-             Element "film" [("title","2001: A Space Odyssey")] 
+             Element "film" [("title","2001: A Space Odyssey")]
                             [Text "\n    ",
                              Element "director" [] [Text "Stanley Kubrick"],
                              Text "\n    ",
@@ -293,7 +319,7 @@ filmsParsed
                              Element "year" [] [Text "1968"],
                              Text "\n  "],
              Text "\n  ",
-             Element "film" [("title","Lawrence of Arabia")] 
+             Element "film" [("title","Lawrence of Arabia")]
                             [Text "\n    ",
                              Element "duration" [] [Text "228"],
                              Text "\n    ",
@@ -307,7 +333,7 @@ filmsParsed
 -- XSL tests
 
 -- value-of test cases
-xsl1, xsl2, xsl3, xsl4, xsl5, xsl6, xsl7, 
+xsl1, xsl2, xsl3, xsl4, xsl5, xsl6, xsl7,
   xsl8, xsl9 :: String
 xsl1
   = "<value-of select = \"a/b/c\"></value-of>"
@@ -325,14 +351,14 @@ xsl6
 -- for-each test cases
 xsl7
   = "<for-each select=\"a/b/c\"><value-of select=\"./@att\"></value-of>\
-    \</for-each>" 
+    \</for-each>"
 xsl8
   = "<for-each select=\"a/b\"><t><value-of select=\"c\"></value-of></t>\
-    \</for-each>" 
+    \</for-each>"
 xsl9
   = "<for-each select=\"a/b\"><t1><value-of select=\"absent\"></value-of>\
     \</t1></for-each>"
-        
+
 -- Parsed versions of the above
 xsl1Parsed, xsl2Parsed, xsl3Parsed, xsl4Parsed, xsl5Parsed,
   xsl6Parsed, xsl7Parsed, xsl8Parsed, xsl9Parsed :: XML
@@ -347,22 +373,22 @@ xsl4Parsed
 xsl5Parsed
   = Element "value-of" [("select","./a/./b/c/./.")] []
 xsl6Parsed
-  = Element "t1" 
-            [] 
+  = Element "t1"
+            []
             [Element "t2" [] [Text "Preamble"],
              Element "t3" [] [Element "value-of" [("select","a/b/c")] []]]
 
 xsl7Parsed
-  = Element "for-each" 
-            [("select","a/b/c")] 
+  = Element "for-each"
+            [("select","a/b/c")]
             [Element "value-of" [("select","./@att")] []]
 xsl8Parsed
-  = Element "for-each" 
-            [("select","a/b")] 
+  = Element "for-each"
+            [("select","a/b")]
             [Element "t" [] [Element "value-of" [("select","c")] []]]
 xsl9Parsed
-  = Element "for-each" 
-            [("select","a/b")] 
+  = Element "for-each"
+            [("select","a/b")]
             [Element "t1" [] [Element "value-of" [("select","absent")] []]]
 
 -- XSL template for building a films summary (example from spec.)
