@@ -9,7 +9,7 @@ A repository containing my solutions to the [Imperial College January Haskell Te
 5. Binomial Heaps (2013)
 6. Regular Expressions and Finite Automata (2014)
 7. Functions, Procedures and Memoisation (2015)
-8. XML and XSL Transformations (2016)
+8. XML and XSL Transformations (2016) \[Difficulty: ***\] ✅
 9. Decision Trees (2017) \[Difficulty: **\] ✅
 10. Constant Propagation (2018)
 11. SAT Solving (2019) \[Difficulty: *\] ✅
