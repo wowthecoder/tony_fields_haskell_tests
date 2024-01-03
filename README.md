@@ -7,7 +7,7 @@ A repository containing my solutions to the [Imperial College January Haskell Te
 3. Polymorphic Type Inference (2011) \[Difficulty: ***\] ✅
 4. Labelled Transition Systems (2012) \[Difficulty: ***\] ✅
 5. Binomial Heaps (2013)
-6. Regular Expressions and Finite Automata (2014)
+6. Regular Expressions and Finite Automata (2014) \[Difficulty: ***\] ✅
 7. Functions, Procedures and Memoisation (2015)
 8. XML and XSL Transformations (2016) \[Difficulty: ***\] ✅
 9. Decision Trees (2017) \[Difficulty: **\] ✅
