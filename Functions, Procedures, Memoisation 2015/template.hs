@@ -194,8 +194,43 @@ translate (name, (as, e)) newName nameMap
     (b, e', ids') = translate' e nameMap ['$' : show n | n <- [1..]] 
 
 translate' :: Exp -> [(Id, Id)] -> [Id] -> (Block, Exp, [Id])
-translate' 
-  = undefined
+translate' e@(Const _) _ vNames
+  = ([], e, vNames)
+
+translate' e@(Var _) _ vNames 
+  = ([], e, vNames) 
+
+translate' (OpApp op e1 e2) fTable vNames 
+  = (b ++ b', OpApp op e e', ids')
+  where 
+    (b, e, ids) = translate' e1 fTable vNames 
+    (b', e', ids') = translate' e2 fTable ids
+
+translate' e@(Cond p q r) fTable vNames 
+  = ([newBlock], Var vn, ids3)
+  where 
+    (b1, p', ids1) = translate' p fTable vNames 
+    (b2, q', ids2) = translate' q fTable ids1
+    (b3, r', ids3) = translate' r fTable ids2
+    vn = head ids3
+    newBlock = If p' (b2 ++ [Assign vn q']) (b3 ++ [Assign vn r'])
+
+translate' (FunApp id es) fTable vNames
+  = ([Call (head ids') replaceF es'], Var (head ids'), tail ids')
+  where 
+    replaceF = lookUp id fTable
+    (blk, es', ids') = translate'' es fTable vNames
+
+translate'' :: [Exp] -> [(Id, Id)] -> [Id] -> (Block, [Exp], [Id])
+translate'' [] _ vns 
+  = ([], [], vns)
+
+translate'' (expr:exprs) fTable vns
+  = (blk ++ blk', e : es, vns'')
+  where 
+    (blk, e, vns') = translate' expr fTable vns
+    (blk', es, vns'') = translate'' exprs fTable vns'
+
 
 ---------------------------------------------------------------------
 -- PREDEFINED FUNCTIONS
