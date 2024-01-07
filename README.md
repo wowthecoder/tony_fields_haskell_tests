@@ -11,7 +11,7 @@ A repository containing my solutions to the [Imperial College January Haskell Te
 7. Functions, Procedures and Memoisation (2015) \[Difficulty: ***\] ✅
 8. XML and XSL Transformations (2016) \[Difficulty: ***\] ✅
 9. Decision Trees (2017) \[Difficulty: **\] ✅
-10. Constant Propagation (2018)
+10. Constant Propagation (2018) \[Difficulty: **\] ✅
 11. SAT Solving (2019) \[Difficulty: *\] ✅
 12. Hash Array Mapped Tries (2020)
 13. Graph Colouring and Register Allocation (2021) \[Difficulty: **\] ✅
