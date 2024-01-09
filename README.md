@@ -13,7 +13,7 @@ A repository containing my solutions to the [Imperial College January Haskell Te
 9. Decision Trees (2017) \[Difficulty: **\] ✅
 10. Constant Propagation (2018) \[Difficulty: **\] ✅
 11. SAT Solving (2019) \[Difficulty: *\] ✅
-12. Hash Array Mapped Tries (2020)
+12. Hash Array Mapped Tries (2020) \[Difficulty: *\] ✅
 13. Graph Colouring and Register Allocation (2021) \[Difficulty: **\] ✅
 14. Supercombinators (2022) \[Difficulty: ***\] ✅
 15. Cryptic Clue Solving (2023) \[Difficulty: *\] ✅
